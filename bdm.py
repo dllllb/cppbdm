@@ -140,9 +140,12 @@ class Package:
 		
 	def getDependencies(self):
 		return self.description.getDependencies()
+		
+def localArtifactResolver():
+	return FileSystemResolver(path.join(path.dirname(path.realpath(__file__)), 'artifacts'))
 
 class Environment:
-	def __init__(self, artifactResolvers, urlResolver=HardCodedUrlResolver(), repoRoot=defaultRepoRoot(), toolchain='gcc'):
+	def __init__(self, artifactResolvers=[localArtifactResolver()], urlResolver=HardCodedUrlResolver(), repoRoot=defaultRepoRoot(), toolchain='gcc'):
 		self.repoRoot=repoRoot
 		self.toolchain = toolchain
 		self.artifactResolvers=artifactResolvers
