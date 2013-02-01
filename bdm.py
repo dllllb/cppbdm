@@ -1,4 +1,5 @@
 import sys, os, os.path as path, urllib2 as ul, shutil, zipfile, tarfile, mimetypes
+from cppbdm.scons_tools import configNameByPlatform
 
 def downloadFile(url, file):
     print "downloading '%s'" % url
@@ -145,10 +146,15 @@ def localArtifactResolver():
     return FileSystemResolver(path.join(path.dirname(path.realpath(__file__)), 'artifacts'))
 
 class Environment:
-    def __init__(self, artifactResolvers=[localArtifactResolver()], urlResolver=HardCodedUrlResolver(), repoRoot=defaultRepoRoot(), toolchain='gcc', buildEnv='unix'):
+    def __init__(self,
+                 args,
+                 artifactResolvers=[localArtifactResolver()],
+                 urlResolver=HardCodedUrlResolver(),
+                 repoRoot=defaultRepoRoot()):
+                 
         self.repoRoot=repoRoot
-        self.toolchain = toolchain
-        self.buildEnv = buildEnv
+        self.toolchain = args.get('toolchain', 'gcc')
+        self.config = args.get('config', configNameByPlatform())
         self.artifactResolvers=artifactResolvers
         self.urlResolver=urlResolver
         self.packageCachePath=path.join(repoRoot, 'packages')

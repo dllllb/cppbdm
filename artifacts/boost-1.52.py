@@ -1,4 +1,5 @@
 import subprocess as sp, os.path
+from cppbdm.scons_tools import toMsysPath, replaceInFile
 
 class Description:
     def getArchiveType(self):
@@ -18,19 +19,24 @@ class Description:
         
     def install(self, buildPath, targetPath, env):
         workDir = os.path.join(buildPath, 'boost_1_52_0')
-        bootstrapCommand = ['./bootstrap.sh', '--prefix=%s' % targetPath]
         
-        if env.buildEnv == 'mingw':
+        prefix = targetPath
+        
+        if env.config == 'mingw':
+            prefix = toMsysPath(targetPath)
+        
+        bootstrapCommand = ['./bootstrap.sh', '--prefix=%s' % prefix]
+        
+        if env.config == 'mingw':
             bootstrapCommand.append('--with-toolset=mingw')
             
-        sp.check_call(['bash', '-c', ' '.join(bootstrapCommand)], cwd=workDir)
+        bootstrapCmd = ' '.join(bootstrapCommand)
+        print 'bootstrap command: "%s"' % bootstrapCmd
+            
+        sp.check_call(['bash', '-c', bootstrapCmd], cwd=workDir)
         
         #fix incorrectly generated jam file
-        if env.buildEnv == 'mingw':
-            with open('%s/project-config.jam' % workDir, "r") as conf:
-                contents = conf.read()
-                contents = contents.replace("mingw", "gcc")
-            with open('%s/project-config.jam' % workDir, "w") as conf:
-                conf.write(contents)
+        if env.config == 'mingw':
+            replaceInFile('%s/project-config.jam' % workDir, "mingw", "gcc")
         
         sp.check_call(['%s/b2' % workDir, 'install'], cwd=workDir)
