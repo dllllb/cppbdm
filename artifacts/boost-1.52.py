@@ -19,8 +19,10 @@ class Description:
     def install(self, buildPath, targetPath, env):
         workDir = os.path.join(buildPath, 'boost_1_52_0')
         bootstrapCommand = ['./bootstrap.sh', '--prefix=%s' % targetPath]
+        
         if env.buildEnv == 'mingw':
             bootstrapCommand.append('--with-toolset=mingw')
+            
         sp.check_call(['bash', '-c', ' '.join(bootstrapCommand)], cwd=workDir)
         
         #fix incorrectly generated jam file
