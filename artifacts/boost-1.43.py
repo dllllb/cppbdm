@@ -1,5 +1,4 @@
 import subprocess as sp, os.path
-from cppbdm.scons_tools import toMsysPath, replaceInFile
 
 class Description:
     def getArchiveType(self):
@@ -19,24 +18,24 @@ class Description:
         
     def install(self, buildPath, targetPath, env):
         workDir = os.path.join(buildPath, 'boost_1_43_0')
-
-        prefix = targetPath
         
-        if env.config == 'mingw':
-            prefix = toMsysPath(targetPath)
-        
-        bootstrapCommand = ['./bootstrap.sh', '--prefix=%s' % prefix]
+        bootstrapCommand = ['./bootstrap.sh', '--prefix=%s' % targetPath]
         
         if env.config == 'mingw':
             bootstrapCommand.append('--with-toolset=mingw')
-        
-        bootstrapCmd = ' '.join(bootstrapCommand)
-        print 'bootstrap command: "%s"' % bootstrapCmd
-        
-        sp.check_call(['bash', '-c', bootstrapCmd], cwd=workDir)
-        
-        #fix incorrectly generated jam file
+            
+        sp.check_call(['bash', '-c', ' '.join(bootstrapCommand)], cwd=workDir)
+
+        #mingw build configuration fix
         if env.config == 'mingw':
-            replaceInFile('%s/project-config.jam' % workDir, "mingw", "gcc")
+            with open('%s/project-config.jam' % workDir, 'w') as f:
+                conf =  'import option ;\n'
+                conf += 'using gcc ;\n'
+                conf += 'project : default-build <toolset>gcc ;\n'
+                conf += 'option.set prefix : %(targetPath)s ;\n'
+                conf += 'option.set exec-prefix : %(targetPath)s ;\n'
+                conf += 'option.set libdir : %(targetPath)s\\lib ;\n'
+                conf += 'option.set includedir : %(targetPath)s\\include ;\n'
+                f.write(conf % {'targetPath' : targetPath})
         
         sp.check_call(['%s/bjam' % workDir, 'install'], cwd=workDir)

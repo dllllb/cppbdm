@@ -1,5 +1,9 @@
 import sys, os, os.path as path, urllib2 as ul, shutil, zipfile, tarfile, mimetypes
-from cppbdm.scons_tools import configNameByPlatform
+
+def configNameByPlatform():
+    return {
+        'posix': 'unix'
+    }.get(os.name, 'windows')
 
 def downloadFile(url, file):
     print "downloading '%s'" % url
