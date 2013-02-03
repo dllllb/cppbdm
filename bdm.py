@@ -66,10 +66,10 @@ class Package:
         self.description = env.getPackageDescription(name, version)
         
     def getInstallPath(self):
-        return path.join(self.env.installedPath, self.env.installedPattern.format(name=self.name, version=self.version))
+        return path.join(self.env.installedPath, self.env.installedPattern.format(name=self.name, version=self.version, config=self.env.config))
         
     def getIntermediateInstallPath(self):
-        return path.join(self.env.tempPath, self.env.installedPattern.format(name=self.name, version=self.version))
+        return path.join(self.env.tempPath, self.env.installedPattern.format(name=self.name, version=self.version, config=self.env.config))
         
     def getIntermediateDownloadPath(self):
         return path.join(self.env.tempPath, self.env.packageFilePattern.format(name=self.name, version=self.version, type=self.description.getArchiveType()))
@@ -78,7 +78,7 @@ class Package:
         return path.join(self.env.packageCachePath, self.env.packageFilePattern.format(name=self.name, version=self.version, type=self.description.getArchiveType()))
         
     def getBuildPath(self):
-        return path.join(self.env.tempPath, self.env.buildDirPattern.format(name=self.name, version=self.version))
+        return path.join(self.env.tempPath, self.env.buildDirPattern.format(name=self.name, version=self.version, config=self.env.config))
         
     def download(self):
         for url in self.env.urlResolver.getDownloadUrls(self.name, self.version, self.description):
@@ -157,7 +157,6 @@ class Environment:
                  repoRoot=defaultRepoRoot()):
                  
         self.repoRoot=repoRoot
-        self.toolchain = args.get('toolchain', 'gcc')
         self.config = args.get('config', configNameByPlatform())
         self.artifactResolvers=artifactResolvers
         self.urlResolver=urlResolver
@@ -165,8 +164,8 @@ class Environment:
         self.installedPath=path.join(repoRoot, 'installed')
         self.tempPath=path.join(repoRoot, 'temp')
         self.packageFilePattern = '{name}-{version}.{type}'
-        self.installedPattern = '{name}-{version}'
-        self.buildDirPattern = '{name}-{version}_build'
+        self.installedPattern = '{name}-{version}-{config}'
+        self.buildDirPattern = '{name}-{version}-{config}_build'
         
         if not path.exists(self.packageCachePath):
             os.makedirs(self.packageCachePath)
