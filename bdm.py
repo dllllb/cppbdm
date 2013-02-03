@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import sys, os, os.path as path, urllib2 as ul, shutil, zipfile, tarfile, mimetypes
 
 def configNameByPlatform():
@@ -196,3 +198,26 @@ class Environment:
         package.deploy()
             
         return package
+        
+def main():
+    import argparse
+
+    parser = argparse.ArgumentParser(description='C++ Build Dependency Management')
+    parser.add_argument('command', help='command to execute', choices=['require', 'includes', 'libdirs'])
+    parser.add_argument('--name', '-n', help='package name to execute command against', required=True)
+    parser.add_argument('--version', '-v', help='package version to execute command against', required=True)
+    parser.add_argument('--config', '-c', help='environment configuration to use')
+    
+    args = parser.parse_args()
+    
+    env = Environment(args={'config':args.config})
+    package = env.requirePackage(args.name, args.version)
+    
+    if args.command == 'require':
+        print 'package %s-%s is successfuly installed' % (package.name, package.version)
+    elif args.command == 'includes':
+        print ','.join(package.getIncludePaths())
+    elif args.command == 'libdirs':
+        print ','.join(getIncludePaths());
+        
+if __name__ == "__main__": main()
