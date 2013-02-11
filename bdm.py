@@ -144,9 +144,9 @@ class Package:
         
     def getLibPaths(self):
         return [path.join(self.getInstallPath(), dir) for dir in self.description.getLibPaths()]
-        
-    def getDependencies(self):
-        return self.description.getDependencies()
+    
+    def getBinPaths(self):
+        return [path.join(self.getInstallPath(), dir) for dir in self.description.getBinPaths()]
         
 def localArtifactResolver():
     return FileSystemResolver(path.join(path.dirname(path.realpath(__file__)), 'artifacts'))
@@ -190,10 +190,6 @@ class Environment:
         if path.exists(package.getInstallPath()):
             print "package '%s-%s' is already installed" % (name, version)
             return package
-        
-        for depName, depVersion in package.getDependencies():
-            print "checking dependency '%s-%s'" % (depName. depVersion)
-            self.requirePackage(depName, depVersion)
             
         package.deploy()
             
@@ -203,21 +199,26 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(description='C++ Build Dependency Management')
-    parser.add_argument('command', help='command to execute', choices=['require', 'includes', 'libdirs'])
+    parser.add_argument('command', help='command to execute', choices=['require', 'includes', 'libdirs', 'bindirs'])
     parser.add_argument('--name', '-n', help='package name to execute command against', required=True)
     parser.add_argument('--version', '-v', help='package version to execute command against', required=True)
     parser.add_argument('--config', '-c', help='environment configuration to use')
+    parser.add_argument('--separator', '-s', help='separator to use for directory list')
     
     args = parser.parse_args()
     
-    env = Environment(args={'config':args.config})
+    env = Environment(args=dict((k, v) for k, v in [('config', args.config)] if v is not None))
     package = env.requirePackage(args.name, args.version)
+    
+    separator = args.separator if args.separator is not None else ','
     
     if args.command == 'require':
         print 'package %s-%s is successfuly installed' % (package.name, package.version)
     elif args.command == 'includes':
-        print ','.join(package.getIncludePaths())
+        print separator.join(package.getIncludePaths())
     elif args.command == 'libdirs':
-        print ','.join(getIncludePaths());
+        print separator.join(getLibPaths())
+    elif args.command == 'bindirs':
+        print separator.join(getBinPaths())
         
 if __name__ == "__main__": main()

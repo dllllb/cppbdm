@@ -7,19 +7,21 @@ class Description:
     def getDownloadUrls(self):
         return ['http://sourceforge.net/projects/boost/files/boost/1.43.0/boost_1_43_0.tar.gz/download']
         
-    def getDependencies(self):
-        return []
-        
     def getIncludePaths(self):
         return ['include']
         
     def getLibPaths(self):
         return ['lib']
+    
+    def getBinPaths(self):
+        return []
         
     def install(self, buildPath, targetPath, env):
         workDir = os.path.join(buildPath, 'boost_1_43_0')
         
-        bootstrapCommand = ['./bootstrap.sh', '--prefix=%s' % targetPath]
+        python = env.requirePackage('python', '2.7.3')
+        
+        bootstrapCommand = ['./bootstrap.sh', '--prefix=%s' % targetPath, '--with-python-root=%s' % python.getInstallPath()]
         
         if env.config == 'mingw':
             bootstrapCommand.append('--with-toolset=mingw')

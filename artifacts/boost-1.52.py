@@ -15,6 +15,9 @@ class Description:
         
     def getLibPaths(self):
         return ['lib']
+    
+    def getBinPaths(self):
+        return []
         
     def install(self, buildPath, targetPath, env):
         workDir = os.path.join(buildPath, 'boost_1_52_0')
