@@ -52,13 +52,7 @@ class HardCodedUrlResolver:
         return description.getDownloadUrls()
         
 def defaultRepoRoot():
-    windowsRepoRoot = path.join(os.environ.get('UserProfile', '.'), '.bdm')
-    unixRepoRoot = path.join(os.environ.get('HOME', '.'), '.bdm')
-    return {
-        'posix': unixRepoRoot,
-        'windows': windowsRepoRoot,
-        'nt' : windowsRepoRoot
-    }.get(os.name)
+    return path.expanduser(path.join('~', '.bdm'))
     
 class Package:
     def __init__(self, env, name, version):
