@@ -41,11 +41,11 @@ class FileSystemResolver:
         self.dir = dir
         self.namePattern=namePattern
         
-    def getDescription(self, name, version):
+    def getDescription(self, name, version, env):
         name = path.join(self.dir, self.namePattern.format(name=name, version=version))
         dict = {}
         execfile(name, dict)
-        return dict['Description']()
+        return dict['Description'](env)
         
 class HardCodedUrlResolver:
     def getDownloadUrls(self, name, value, description):
@@ -128,7 +128,7 @@ class Package:
             shutil.rmtree(self.getIntermediateInstallPath())
         
         print 'installing'
-        self.description.install(self.getBuildPath(), self.getIntermediateInstallPath(), self.env)
+        self.description.install(self.getBuildPath(), self.getIntermediateInstallPath())
         
         os.rename(self.getIntermediateInstallPath(), self.getInstallPath())
         print 'deployed'
@@ -174,7 +174,7 @@ class Environment:
         
     def getPackageDescription(self, name, version):
         try:
-            return (res for res in (res.getDescription(name, version) for res in self.artifactResolvers) if res != None).next()
+            return (res for res in (res.getDescription(name, version, self) for res in self.artifactResolvers) if res != None).next()
         except StopIteration:
             raise Exception("can't find dependency '%s-%s'" % (name, version))
         

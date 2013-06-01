@@ -8,14 +8,14 @@ class Description:
         return 'tar.gz'
     
     def getDownloadUrls(self):
-        return ['http://sourceforge.net/projects/boost/files/boost/1.52.0/boost_1_52_0.tar.gz/download']
+        return ['http://sourceforge.net/projects/boost/files/boost/1.53.0/boost_1_53_0.tar.gz/download']
         
     def getDependencies(self):
         return []
         
     def getIncludePaths(self):
         if self.env.config == 'mingw':
-            return [path.join('include', 'boost_1_52_0')]
+            return [path.join('include', 'boost_1_53_0')]
         else:
             return ['include']
         
@@ -32,7 +32,7 @@ class Description:
             self.install_unix(buildPath, targetPath)
 
     def install_mingw(self, buildPath, targetPath):
-        workDir = os.path.join(buildPath, 'boost_1_52_0')
+        workDir = os.path.join(buildPath, 'boost_1_53_0')
                 
         sp.check_call(['cmd', '/C', '.\\bootstrap.bat mingw'], cwd=workDir)
         sp.check_call(['%s\\bjam' % workDir,
@@ -41,7 +41,7 @@ class Description:
                        '--prefix=%s' % targetPath], cwd=workDir)
 
     def install_unix(self, buildPath, targetPath):
-        workDir = os.path.join(buildPath, 'boost_1_52_0')
+        workDir = os.path.join(buildPath, 'boost_1_53_0')
         
         bootstrapCommand = ['./bootstrap.sh', '--prefix=%s' % targetPath]
         

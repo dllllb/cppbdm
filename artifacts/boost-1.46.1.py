@@ -1,6 +1,9 @@
 import subprocess as sp, os.path
 
 class Description:
+    def __init__(self, env):
+        self.env = env
+
     def getArchiveType(self):
         return 'tar.gz'
     
@@ -19,13 +22,10 @@ class Description:
     def getBinPaths(self):
         return []
         
-    def install(self, buildPath, targetPath, env):
+    def install(self, buildPath, targetPath):
         workDir = os.path.join(buildPath, 'boost_1_46_1')
         
         bootstrapCommand = ['./bootstrap.sh', '--prefix=%s' % targetPath]
-        
-        if env.config == 'mingw':
-            bootstrapCommand.append('--with-toolset=mingw')
-            
+                    
         sp.check_call(['bash', '-c', ' '.join(bootstrapCommand)], cwd=workDir)        
         sp.check_call(['%s/bjam' % workDir, 'install'], cwd=workDir)

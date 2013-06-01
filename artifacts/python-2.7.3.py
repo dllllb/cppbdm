@@ -1,6 +1,9 @@
 import subprocess as sp, os.path
 
 class Description:
+    def __init__(self, env):
+        self.env = env
+
     def getArchiveType(self):
         return 'tar.gz'
     
@@ -19,7 +22,7 @@ class Description:
     def getBinPaths(self):
         return ['bin']
         
-    def install(self, buildPath, targetPath, env):
+    def install(self, buildPath, targetPath):
     	workDir = os.path.join(buildPath, 'Python-2.7.3')
         sp.check_call(['bash', '-c', './configure --prefix=%s' % targetPath], cwd=workDir)
         sp.check_call('make', cwd=workDir)
