@@ -211,8 +211,8 @@ def main():
     elif args.command == 'includes':
         print separator.join(package.getIncludePaths())
     elif args.command == 'libdirs':
-        print separator.join(getLibPaths())
+        print separator.join(package.getLibPaths())
     elif args.command == 'bindirs':
-        print separator.join(getBinPaths())
+        print separator.join(package.getBinPaths())
         
 if __name__ == "__main__": main()

@@ -1,4 +1,4 @@
-import subprocess as sp, os.path
+import subprocess as sp, os.path as path, os
 
 class Description:
     def __init__(self, env):
@@ -15,7 +15,7 @@ class Description:
         
     def getIncludePaths(self):
         if self.env.config == 'mingw':
-            return [path.join('include', 'boost_1_53_0')]
+            return [path.join('include', 'boost-1_53')]
         else:
             return ['include']
         
@@ -33,12 +33,19 @@ class Description:
 
     def install_mingw(self, buildPath, targetPath):
         workDir = os.path.join(buildPath, 'boost_1_53_0')
-                
-        sp.check_call(['cmd', '/C', '.\\bootstrap.bat mingw'], cwd=workDir)
-        sp.check_call(['%s\\bjam' % workDir,
+
+        #setting locale in order to get english errors from mingw GCC
+        modEnv = os.environ.copy()
+        modEnv['LC_ALL'] = 'en_US.UTF-8'
+
+        sp.check_call(['cmd', '/C', '.\\bootstrap.bat mingw'], cwd=workDir, env=modEnv)
+        
+        #context library is ignored because it requires MS assembler (ml) in path
+        sp.check_call([path.join(workDir, 'bjam'),
                        'toolset=gcc',
                        'install',
-                       '--prefix=%s' % targetPath], cwd=workDir)
+                       '--without-context',
+                       '--prefix=%s' % targetPath], cwd=workDir, env=modEnv)
 
     def install_unix(self, buildPath, targetPath):
         workDir = os.path.join(buildPath, 'boost_1_53_0')
