@@ -8,7 +8,7 @@ def configNameByPlatform():
     }.get(os.name, 'windows')
 
 def downloadFile(url, file):
-    print "downloading '%s'" % url
+    print("downloading '%s'" % url)
     try:
         rem = ul.urlopen(url)
         with open(file, 'wb') as loc:
@@ -20,10 +20,10 @@ def downloadFile(url, file):
                 sys.stdout.write('*')
     finally:
         rem.close()
-    print 'downloaded'
+    print('downloaded')
 
 def extractFile(file, path, type):
-    print "unpacking '%s' to '%s'" % (file, path)
+    print("unpacking '%s' to '%s'" % (file, path))
 
     if type == 'zip':
         with zipfile.ZipFile(file) as zf:
@@ -34,7 +34,7 @@ def extractFile(file, path, type):
     else:
         raise Exception("unknown archive type '%s'" % type)
 
-    print 'unpacked'
+    print('unpacked')
 
 class FileSystemResolver:
     def __init__(self, dir, namePattern='{name}-{version}.py'):
@@ -79,11 +79,11 @@ class Package:
     def download(self):
         for url in self.env.urlResolver.getDownloadUrls(self.name, self.version, self.description):
             if path.exists(self.getDownloadPath()):
-                print "package '%s-%s' is already downloaded" % (self.name, self.version)
+                print("package '%s-%s' is already downloaded" % (self.name, self.version))
                 return
             
             if path.exists(self.getIntermediateDownloadPath()):
-                print "removing '%s'" % self.getIntermediateDownloadPath()
+                print("removing '%s'" % self.getIntermediateDownloadPath())
                 os.remove(self.getIntermediateDownloadPath())
             
             try:
@@ -111,27 +111,27 @@ class Package:
                 # Is the error an access error ?
                 os.chmod(path, stat.S_IWUSR)
                 func(path)
-                print "onerror"
+                print("onerror")
             else:
                 raise
             
         self.download()
             
         if path.exists(self.getBuildPath()):
-            print "removing '%s'" % self.getBuildPath()
+            print("removing '%s'" % self.getBuildPath())
             shutil.rmtree(self.getBuildPath(), onerror=shutilOnError)
             
         extractFile(self.getDownloadPath(), self.getBuildPath(), self.description.getArchiveType())
         
         if path.exists(self.getIntermediateInstallPath()):
-            print "removing '%s'" % self.getIntermediateInstallPath()
+            print("removing '%s'" % self.getIntermediateInstallPath())
             shutil.rmtree(self.getIntermediateInstallPath())
         
-        print 'installing'
+        print('installing')
         self.description.install(self.getBuildPath(), self.getIntermediateInstallPath())
         
         os.rename(self.getIntermediateInstallPath(), self.getInstallPath())
-        print 'deployed'
+        print('deployed')
             
     def getIncludePaths(self):
         return [path.join(self.getInstallPath(), dir) for dir in self.description.getIncludePaths()]
@@ -182,7 +182,7 @@ class Environment:
         package = Package(self, name, version)
         
         if path.exists(package.getInstallPath()):
-            print "package '%s-%s' is already installed" % (name, version)
+            print("package '%s-%s' is already installed" % (name, version))
             return package
             
         package.deploy()
@@ -207,12 +207,13 @@ def main():
     separator = args.separator if args.separator is not None else ','
     
     if args.command == 'require':
-        print 'package %s-%s is successfuly installed' % (package.name, package.version)
+        print('package %s-%s is successfuly installed' % (package.name, package.version))
     elif args.command == 'includes':
-        print separator.join(package.getIncludePaths())
+        print(separator.join(package.getIncludePaths()))
     elif args.command == 'libdirs':
-        print separator.join(package.getLibPaths())
+        print(separator.join(package.getLibPaths()))
     elif args.command == 'bindirs':
-        print separator.join(package.getBinPaths())
+        print(separator.join(package.getBinPaths()))
         
-if __name__ == "__main__": main()
+if __name__ == "__main__":
+    main()
