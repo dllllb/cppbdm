@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import sys, os, os.path as path, urllib2 as ul, shutil, zipfile, tarfile, mimetypes
+import sys, os, os.path as path, urllib as ul, shutil, zipfile, tarfile
 
 def configNameByPlatform():
     return {
@@ -9,8 +9,7 @@ def configNameByPlatform():
 
 def downloadFile(url, file):
     print("downloading '%s'" % url)
-    try:
-        rem = ul.urlopen(url)
+    with ul.request.urlopen(url) as rem:
         with open(file, 'wb') as loc:
             while(True):
                 bytes = rem.read(2**16)
@@ -18,8 +17,7 @@ def downloadFile(url, file):
                     break
                 loc.write(bytes)
                 sys.stdout.write('*')
-    finally:
-        rem.close()
+
     print('downloaded')
 
 def extractFile(file, path, type):
@@ -44,7 +42,9 @@ class FileSystemResolver:
     def getDescription(self, name, version, env):
         name = path.join(self.dir, self.namePattern.format(name=name, version=version))
         dict = {}
-        execfile(name, dict)
+        with open(name) as f:
+            code = compile(f.read(), name, 'exec')
+            exec(code, dict)
         return dict['Description'](env)
         
 class HardCodedUrlResolver:
